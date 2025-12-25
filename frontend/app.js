@@ -20,7 +20,6 @@ const enabledCheckbox = document.getElementById('enabled');
 const retentionCount = document.getElementById('retentionCount');
 const retentionGroup = document.getElementById('retentionGroup');
 const notification = document.getElementById('notification');
-const notification = document.getElementById('notification');
 
 // DOM elements - Settings
 const settingsBtn = document.getElementById('settingsBtn');
