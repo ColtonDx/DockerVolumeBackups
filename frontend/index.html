@@ -11,7 +11,12 @@
         <header>
             <div class="header-top">
                 <h1>🐳 Simple Docker Volume Backup</h1>
-                <button id="settingsBtn" class="settings-btn" title="Settings">⚙️</button>
+                <div class="menu-container">
+                    <button id="settingsBtn" class="menu-btn" title="Menu">⚙️</button>
+                    <div id="settingsMenu" class="dropdown-menu hidden">
+                        <button id="settingsLink" class="menu-item">⚙️ Backup Settings</button>
+                    </div>
+                </div>
             </div>
             <p>Schedule automated backups of your Docker volumes</p>
         </header>

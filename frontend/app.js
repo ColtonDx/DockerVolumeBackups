@@ -51,9 +51,20 @@ cancelFormBtn.addEventListener('click', hideFormSection);
 jobForm.addEventListener('submit', handleCreateBackup);
 frequency.addEventListener('change', handleFrequencyChange);
 
-settingsBtn.addEventListener('click', openSettingsModal);
-settingsClose.addEventListener('click', closeSettingsModal);
-cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+// Settings menu dropdown
+const settingsMenu = document.getElementById('settingsMenu');
+const settingsLink = document.getElementById('settingsLink');
+settingsBtn.addEventListener('click', toggleSettingsMenu);
+settingsLink.addEventListener('click', openSettingsModal);
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.menu-container')) {
+        settingsMenu.classList.add('hidden');
+    }
+});
+
+// Other event listeners
 settingsForm.addEventListener('submit', handleSaveSettings);
 backupNameSchema.addEventListener('input', updateSchemaPreview);
 
@@ -65,6 +76,16 @@ cancelEditBtn.addEventListener('click', closeEditModal);
 // Initialize
 loadSettings();
 loadAndDisplayJobs();
+
+// Toggle settings menu dropdown
+function toggleSettingsMenu() {
+    settingsMenu.classList.toggle('hidden');
+}
+
+// Close settings menu
+function closeSettingsMenu() {
+    settingsMenu.classList.add('hidden');
+}
 
 // Show form section
 function showFormSection() {
@@ -123,33 +144,65 @@ async function loadAndDisplayJobs() {
 // Display jobs
 function displayJobs(jobs) {
     if (jobs.length === 0) {
-        jobsList.innerHTML = '<div class="empty-state"><p>No backups scheduled yet. Create one above!</p></div>';
+        jobsList.innerHTML = `
+            <table class="jobs-table">
+                <thead>
+                    <tr>
+                        <th>Backup Label</th>
+                        <th>Frequency</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                            No backup jobs scheduled yet. Click "Add a Job" to create one.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
         return;
     }
 
-    jobsList.innerHTML = jobs.map(job => `
-        <div class="job-card ${job.enabled ? '' : 'disabled'}">
-            <div class="job-header">
-                <h3 class="job-name">${escapeHtml(job.backupLabel)}</h3>
-                <span class="job-status ${job.enabled ? 'enabled' : 'disabled'}">
+    const tableRows = jobs.map(job => `
+        <tr class="${job.enabled ? '' : 'disabled-row'}">
+            <td><strong>${escapeHtml(job.backupLabel)}</strong></td>
+            <td>${escapeHtml(job.frequency)}</td>
+            <td><code>${escapeHtml(job.schedule)}</code></td>
+            <td>
+                <span class="status-badge ${job.enabled ? 'status-enabled' : 'status-disabled'}">
                     ${job.enabled ? '✓ Enabled' : '✗ Disabled'}
                 </span>
-            </div>
-            <div class="job-schedule">
-                <strong>Schedule:</strong> ${escapeHtml(job.schedule)}
-            </div>
-            <div class="job-schedule">
-                <strong>Frequency:</strong> ${escapeHtml(job.frequency)}
-            </div>
-            <div class="job-actions">
-                <button class="btn-edit" onclick="openEditModal('${job.id}')">Edit</button>
-                <button class="btn-toggle ${job.enabled ? 'disable' : ''}" onclick="toggleJob('${job.id}')">
+            </td>
+            <td class="actions-cell">
+                <button class="btn-sm btn-edit" onclick="openEditModal('${job.id}')">Edit</button>
+                <button class="btn-sm btn-toggle" onclick="toggleJob('${job.id}')">
                     ${job.enabled ? 'Disable' : 'Enable'}
                 </button>
-                <button class="btn-delete" onclick="deleteJob('${job.id}')">Delete</button>
-            </div>
-        </div>
+                <button class="btn-sm btn-delete" onclick="deleteJob('${job.id}')">Delete</button>
+            </td>
+        </tr>
     `).join('');
+
+    jobsList.innerHTML = `
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Backup Label</th>
+                    <th>Frequency</th>
+                    <th>Schedule</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    `;
 }
 
 // Handle create backup
@@ -336,6 +389,7 @@ function updateSchemaPreview() {
 function openSettingsModal() {
     settingsModal.classList.remove('hidden');
     settingsModal.classList.add('visible');
+    closeSettingsMenu(); // Close dropdown when opening modal
 }
 
 function closeSettingsModal() {
