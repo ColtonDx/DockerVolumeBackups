@@ -26,7 +26,9 @@ const settingsForm = document.getElementById('settingsForm');
 const settingsClose = document.getElementById('settingsClose');
 const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
 const backupNameSchema = document.getElementById('backupNameSchema');
-const ignorePattern = document.getElementById('ignorePattern');
+const ignorePatternsList = document.getElementById('ignorePatternsList');
+const addPatternBtn = document.getElementById('addPatternBtn');
+const rcloneConfig = document.getElementById('rcloneConfig');
 const schemaPreview = document.getElementById('schemaPreview');
 
 // DOM elements - Restore Modal
@@ -78,6 +80,7 @@ settingsBtn.addEventListener('click', toggleSettingsMenu);
 settingsLink.addEventListener('click', openSettingsModal);
 settingsClose.addEventListener('click', closeSettingsModal);
 cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+addPatternBtn.addEventListener('click', addIgnorePattern);
 
 // Restore button and modal
 restoreBtn.addEventListener('click', openRestoreModal);
@@ -491,16 +494,60 @@ function escapeHtml(text) {
 
 // Settings functions
 function loadSettings() {
-    const saved = localStorage.getItem(SETTINGS_KEY);
-    if (saved) {
-        const settings = JSON.parse(saved);
-        backupNameSchema.value = settings.backupNameSchema || 'backup_{label}_{date}';
-        ignorePattern.value = settings.ignorePattern || '';
-    } else {
-        backupNameSchema.value = 'backup_{label}_{date}';
-        ignorePattern.value = '';
+    try {
+        // Load from backend first
+        fetch('/api/settings')
+            .then(r => r.json())
+            .then(settings => {
+                backupNameSchema.value = settings.backupNameSchema || 'backup_{label}_{date}';
+                
+                // Load ignore patterns
+                const patterns = settings.ignorePatterns || [];
+                ignorePatternsList.innerHTML = '';
+                patterns.forEach(pattern => {
+                    if (pattern.trim()) {
+                        renderIgnorePattern(pattern);
+                    }
+                });
+                
+                // Load rclone config
+                if (settings.rcloneConfig) {
+                    rcloneConfig.value = settings.rcloneConfig;
+                }
+                
+                updateSchemaPreview();
+            })
+            .catch(() => {
+                // Fallback to defaults if backend not ready
+                backupNameSchema.value = 'backup_{label}_{date}';
+                ignorePatternsList.innerHTML = '';
+                updateSchemaPreview();
+            });
+    } catch (err) {
+        console.log('Note: Settings will use defaults');
     }
-    updateSchemaPreview();
+}
+
+function renderIgnorePattern(pattern) {
+    const div = document.createElement('div');
+    div.className = 'pattern-item';
+    div.innerHTML = `
+        <input type="text" value="${escapeHtml(pattern)}" class="pattern-input" placeholder="Enter regex pattern">
+        <button type="button" class="pattern-delete-btn">Delete</button>
+    `;
+    
+    const deleteBtn = div.querySelector('.pattern-delete-btn');
+    deleteBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        div.remove();
+    });
+    
+    ignorePatternsList.appendChild(div);
+}
+
+function addIgnorePattern(e) {
+    if (e) e.preventDefault();
+    renderIgnorePattern('');
 }
 
 function saveSettings(settings) {
@@ -518,6 +565,7 @@ function updateSchemaPreview() {
 }
 
 function openSettingsModal() {
+    loadSettings(); // Reload settings when opening
     settingsModal.classList.remove('hidden');
     settingsModal.classList.add('visible');
     closeSettingsMenu(); // Close dropdown when opening modal
@@ -530,9 +578,17 @@ function closeSettingsModal() {
 
 async function handleSaveSettings(e) {
     e.preventDefault();
+    
+    // Collect ignore patterns
+    const patternInputs = document.querySelectorAll('.pattern-input');
+    const ignorePatterns = Array.from(patternInputs)
+        .map(input => input.value.trim())
+        .filter(pattern => pattern.length > 0);
+    
     const settings = {
         backupNameSchema: backupNameSchema.value,
-        ignorePattern: ignorePattern.value
+        ignorePatterns: ignorePatterns,
+        rcloneConfig: rcloneConfig.value
     };
     
     try {

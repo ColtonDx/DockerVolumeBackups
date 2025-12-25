@@ -157,21 +157,41 @@
                 <span class="close" id="settingsClose">&times;</span>
             </div>
             <form id="settingsForm">
-                <div class="form-group">
-                    <label for="backupNameSchema">Backup Name Schema:</label>
-                    <input type="text" id="backupNameSchema" placeholder="e.g., backup_{label}_{date}" required>
-                    <small>Available variables: {label}, {date}, {time}, {timestamp}</small>
-                </div>
+                <!-- Backup Name Schema Section -->
+                <fieldset>
+                    <legend>Backup Naming</legend>
+                    <div class="form-group">
+                        <label for="backupNameSchema">Backup Name Schema:</label>
+                        <input type="text" id="backupNameSchema" placeholder="e.g., backup_{label}_{date}" required>
+                        <small>Available variables: {label}, {date}, {time}, {timestamp}</small>
+                    </div>
 
-                <div class="form-group">
-                    <p><strong>Example:</strong> <span id="schemaPreview">backup_myvolume_20251224</span></p>
-                </div>
+                    <div class="form-group">
+                        <p><strong>Example:</strong> <span id="schemaPreview">backup_myvolume_20251224</span></p>
+                    </div>
+                </fieldset>
 
-                <div class="form-group">
-                    <label for="ignorePattern">Ignore Volume Pattern (Regex):</label>
-                    <input type="text" id="ignorePattern" placeholder="e.g., ^temp_|_cache$ (regex pattern)">
-                    <small>Volumes matching this regex pattern will be excluded from backups</small>
-                </div>
+                <!-- Ignore Patterns Section -->
+                <fieldset>
+                    <legend>Ignore Patterns (Regex)</legend>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Volumes matching these patterns will be excluded from backups</p>
+                    
+                    <div id="ignorePatternsList"></div>
+                    
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn-secondary" id="addPatternBtn">+ Add Pattern</button>
+                    </div>
+                </fieldset>
+
+                <!-- Rclone Config Section -->
+                <fieldset>
+                    <legend>Rclone Configuration</legend>
+                    <div class="form-group">
+                        <label for="rcloneConfig">Rclone Config:</label>
+                        <textarea id="rcloneConfig" placeholder="Paste your rclone.conf contents here" style="font-family: monospace; height: 200px;"></textarea>
+                        <small>Edit and save your rclone configuration directly in the web UI</small>
+                    </div>
+                </fieldset>
 
                 <div class="modal-buttons">
                     <button type="submit" class="btn-primary">Save Settings</button>

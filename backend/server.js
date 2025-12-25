@@ -78,9 +78,10 @@ function initCronJob(job) {
   const task = cron.schedule(job.schedule, () => {
     console.log(`[${new Date().toISOString()}] Starting backup: ${job.backupLabel}`);
     
-    // Get current settings for ignore pattern
+    // Get current settings for ignore patterns
     globalSettings = loadSettings();
-    const ignorePattern = globalSettings.ignorePattern || '.';
+    const ignorePatterns = globalSettings.ignorePatterns || [];
+    const ignorePattern = ignorePatterns.length > 0 ? ignorePatterns.join('|') : '.';
     
     // Execute the backup script
     const args = [
@@ -203,7 +204,8 @@ app.post('/api/jobs/:id/run', (req, res) => {
 
   // Run the backup script immediately
   globalSettings = loadSettings();
-  const ignorePattern = globalSettings.ignorePattern || '.';
+  const ignorePatterns = globalSettings.ignorePatterns || [];
+  const ignorePattern = ignorePatterns.length > 0 ? ignorePatterns.join('|') : '.';
   
   const args = [
     job.backupLabel,
