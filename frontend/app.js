@@ -171,14 +171,15 @@ function displayJobs(jobs) {
                         <th>Backup Label</th>
                         <th>Frequency</th>
                         <th>Schedule</th>
+                        <th>Rclone</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
-                            No backup jobs scheduled yet. Click "Add a Job" to create one.
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                            No backup jobs scheduled yet. Click "Add a Backup Job" to create one.
                         </td>
                     </tr>
                 </tbody>
@@ -192,6 +193,11 @@ function displayJobs(jobs) {
             <td><strong>${escapeHtml(job.backupLabel)}</strong></td>
             <td>${escapeHtml(job.frequency)}</td>
             <td><code>${escapeHtml(job.schedule)}</code></td>
+            <td>
+                <span class="rclone-badge ${job.useRclone ? 'rclone-yes' : 'rclone-no'}">
+                    ${job.useRclone ? '✓ ' + escapeHtml(job.remote) : '✗ None'}
+                </span>
+            </td>
             <td>
                 <span class="status-badge ${job.enabled ? 'status-enabled' : 'status-disabled'}">
                     ${job.enabled ? '✓ Enabled' : '✗ Disabled'}
@@ -214,6 +220,7 @@ function displayJobs(jobs) {
                     <th>Backup Label</th>
                     <th>Frequency</th>
                     <th>Schedule</th>
+                    <th>Rclone</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>

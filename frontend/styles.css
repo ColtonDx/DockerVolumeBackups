@@ -123,6 +123,15 @@ section {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+.form-section {
+    margin-top: 30px;
+    display: block;
+}
+
+.form-section.hidden {
+    display: none !important;
+}
+
 h2 {
     color: #333;
     margin-bottom: 20px;
@@ -344,6 +353,25 @@ small {
 .status-disabled {
     background: #f8d7da;
     color: #721c24;
+}
+
+.rclone-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rclone-yes {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.rclone-no {
+    background: #e7e7e7;
+    color: #666;
 }
 
 .actions-cell {
