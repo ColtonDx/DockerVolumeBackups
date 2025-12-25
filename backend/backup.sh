@@ -12,6 +12,11 @@ USE_RCLONE="$4"
 REMOTE="$5"
 IGNORE_PATTERN="${6:-.}"  # Default to empty pattern (match nothing)
 
+# Setup logging
+LOG_FILE="/data/backups.log"
+exec > >(tee -a "$LOG_FILE")
+exec 2>&1
+
 # Validate inputs
 if [[ -z "$LABEL" || -z "$BACKUP_DIR" ]]; then
     echo "Error: Missing required arguments"
