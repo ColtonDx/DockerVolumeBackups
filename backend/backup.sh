@@ -97,16 +97,17 @@ for container_id in $CONTAINERS; do
         
         echo "Backing up volume: $volume_name"
         
-        # Create a temporary container to access the volume
-        TEMP_CONTAINER=$(docker create -v "$volume_name:$dest_path" alpine:latest)
+        # Find the volume's data directory
+        VOLUME_DATA_PATH="/var/lib/docker/volumes/${volume_name}/_data"
         
-        # Tar the volume content
-        docker export "$TEMP_CONTAINER" | tar xf - -C "$BACKUP_SUBDIR" 2>/dev/null || true
-        
-        # Clean up temp container
-        docker rm "$TEMP_CONTAINER" > /dev/null 2>&1 || true
-        
-        volume_count=$((volume_count + 1))
+        if [[ -d "$VOLUME_DATA_PATH" ]]; then
+            # Tar the actual volume data
+            mkdir -p "$BACKUP_SUBDIR/$volume_name"
+            tar -cf - -C "$VOLUME_DATA_PATH" . 2>/dev/null | tar xf - -C "$BACKUP_SUBDIR/$volume_name" 2>/dev/null || true
+            volume_count=$((volume_count + 1))
+        else
+            echo "Warning: Volume data path not found for $volume_name at $VOLUME_DATA_PATH"
+        fi
     done
 done
 
