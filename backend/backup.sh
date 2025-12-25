@@ -14,8 +14,7 @@ IGNORE_PATTERN="${6:-.}"  # Default to empty pattern (match nothing)
 
 # Setup logging
 LOG_FILE="/data/backups.log"
-exec > >(tee -a "$LOG_FILE")
-exec 2>&1
+{
 
 # Validate inputs
 if [[ -z "$LABEL" || -z "$BACKUP_DIR" ]]; then
@@ -155,3 +154,4 @@ for container_id in "${RUNNING_CONTAINERS[@]}"; do
 done
 
 echo "Backup completed for label: $LABEL"
+} >> "$LOG_FILE" 2>&1
