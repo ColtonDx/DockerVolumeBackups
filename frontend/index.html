@@ -9,12 +9,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>� Simple Docker Volume Backup</h1>
+            <div class="header-top">
+                <h1>🐳 Simple Docker Volume Backup</h1>
+                <button id="settingsBtn" class="settings-btn" title="Settings">⚙️</button>
+            </div>
             <p>Schedule automated backups of your Docker volumes</p>
         </header>
 
         <main>
-            <section class="form-section">
+            <section class="jobs-section">
+                <div class="jobs-header">
+                    <h2>Backup Jobs</h2>
+                    <button id="addJobBtn" class="btn-secondary">+ Add a Job</button>
+                </div>
+                <div id="jobsList" class="jobs-list"></div>
+            </section>
+
+            <section class="form-section hidden" id="formSection">
                 <h2>Schedule New Backup</h2>
                 <form id="jobForm">
                     <div class="form-group">
@@ -48,13 +59,11 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn-primary">Create Backup Schedule</button>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn-primary">Create Backup Schedule</button>
+                        <button type="button" class="btn-secondary" id="cancelFormBtn">Cancel</button>
+                    </div>
                 </form>
-            </section>
-Backup
-            <section class="jobs-section">
-                <h2>Scheduled Jobs</h2>
-                <div id="jobsList" class="jobs-list"></div>
             </section>
         </main>
     </div>backups -->
@@ -93,14 +102,36 @@ Backup
                     <label>
                         <input type="checkbox" id="editEnabled">
                         Enable this backup schedule
-                        <input type="checkbox" id="editEnabled">
-                        Enable this job
                     </label>
                 </div>
 
                 <div class="modal-buttons">
                     <button type="submit" class="btn-primary">Save Changes</button>
                     <button type="button" class="btn-secondary" id="cancelEditBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="settingsClose">&times;</span>
+            <h2>Backup Settings</h2>
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label for="backupNameSchema">Backup Name Schema:</label>
+                    <input type="text" id="backupNameSchema" placeholder="e.g., backup_{label}_{date}" required>
+                    <small>Available variables: {label}, {date}, {time}, {timestamp}</small>
+                </div>
+
+                <div class="form-group">
+                    <p><strong>Example:</strong> <span id="schemaPreview">backup_myvolume_20251224</span></p>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-primary">Save Settings</button>
+                    <button type="button" class="btn-secondary" id="cancelSettingsBtn">Cancel</button>
                 </div>
             </form>
         </div>

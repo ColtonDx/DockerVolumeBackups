@@ -1,8 +1,14 @@
 // API endpoints
 const API_URL = '/api/jobs';
 
-// DOM elements
+// Settings storage key
+const SETTINGS_KEY = 'dockerBackupSettings';
+
+// DOM elements - Form
+const addJobBtn = document.getElementById('addJobBtn');
 const jobForm = document.getElementById('jobForm');
+const formSection = document.getElementById('formSection');
+const cancelFormBtn = document.getElementById('cancelFormBtn');
 const backupLabel = document.getElementById('backupLabel');
 const frequency = document.getElementById('frequency');
 const customCronInput = document.getElementById('customCron');
@@ -10,6 +16,16 @@ const customCronGroup = document.getElementById('customCronGroup');
 const enabledCheckbox = document.getElementById('enabled');
 const jobsList = document.getElementById('jobsList');
 
+// DOM elements - Settings
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const settingsForm = document.getElementById('settingsForm');
+const settingsClose = document.getElementById('settingsClose');
+const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+const backupNameSchema = document.getElementById('backupNameSchema');
+const schemaPreview = document.getElementById('schemaPreview');
+
+// DOM elements - Edit Modal
 const editModal = document.getElementById('editModal');
 const editForm = document.getElementById('editForm');
 const editJobId = document.getElementById('editJobId');
@@ -30,15 +46,38 @@ const frequencyMap = {
 };
 
 // Event listeners
+addJobBtn.addEventListener('click', showFormSection);
+cancelFormBtn.addEventListener('click', hideFormSection);
 jobForm.addEventListener('submit', handleCreateBackup);
 frequency.addEventListener('change', handleFrequencyChange);
+
+settingsBtn.addEventListener('click', openSettingsModal);
+settingsClose.addEventListener('click', closeSettingsModal);
+cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+settingsForm.addEventListener('submit', handleSaveSettings);
+backupNameSchema.addEventListener('input', updateSchemaPreview);
+
 editFrequency.addEventListener('change', handleEditFrequencyChange);
 editForm.addEventListener('submit', handleEditBackup);
-closeModalBtn.addEventListener('click', closeModal);
-cancelEditBtn.addEventListener('click', closeModal);
+closeModalBtn.addEventListener('click', closeEditModal);
+cancelEditBtn.addEventListener('click', closeEditModal);
 
 // Initialize
+loadSettings();
 loadAndDisplayJobs();
+
+// Show form section
+function showFormSection() {
+    formSection.classList.remove('hidden');
+    formSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Hide form section
+function hideFormSection() {
+    formSection.classList.add('hidden');
+    jobForm.reset();
+    customCronGroup.classList.add('hidden');
+}
 
 // Handle frequency change to show/hide custom cron input
 function handleFrequencyChange() {
@@ -199,7 +238,7 @@ async function handleEditBackup(e) {
 
         if (!response.ok) throw new Error('Failed to update backup');
 
-        closeModal();
+        closeEditModal();
         loadAndDisplayJobs();
     } catch (error) {
         console.error('Error updating backup:', error);
@@ -207,8 +246,8 @@ async function handleEditBackup(e) {
     }
 }
 
-// Close modal
-function closeModal() {
+// Close edit modal
+function closeEditModal() {
     editModal.classList.remove('visible');
     editModal.classList.add('hidden');
     editForm.reset();
@@ -266,6 +305,52 @@ function escapeHtml(text) {
         "'": '&#039;'
     };
     return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Settings functions
+function loadSettings() {
+    const saved = localStorage.getItem(SETTINGS_KEY);
+    if (saved) {
+        const settings = JSON.parse(saved);
+        backupNameSchema.value = settings.backupNameSchema || 'backup_{label}_{date}';
+    } else {
+        backupNameSchema.value = 'backup_{label}_{date}';
+    }
+    updateSchemaPreview();
+}
+
+function saveSettings(settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function updateSchemaPreview() {
+    const schema = backupNameSchema.value;
+    const preview = schema
+        .replace('{label}', 'myvolume')
+        .replace('{date}', '20251224')
+        .replace('{time}', '1430')
+        .replace('{timestamp}', '20251224_1430');
+    schemaPreview.textContent = preview;
+}
+
+function openSettingsModal() {
+    settingsModal.classList.remove('hidden');
+    settingsModal.classList.add('visible');
+}
+
+function closeSettingsModal() {
+    settingsModal.classList.remove('visible');
+    settingsModal.classList.add('hidden');
+}
+
+async function handleSaveSettings(e) {
+    e.preventDefault();
+    const settings = {
+        backupNameSchema: backupNameSchema.value
+    };
+    saveSettings(settings);
+    closeSettingsModal();
+    alert('Settings saved successfully!');
 }
 
 // Auto-reload jobs every 10 seconds
