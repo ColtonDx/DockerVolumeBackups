@@ -652,7 +652,12 @@ async function handleSaveSettings(e) {
 // Show notification
 function showNotification(message, type = 'success') {
     notification.textContent = message;
-    notification.className = `notification ${type}`;
+    notification.className = `notification ${type} hidden`;
+    
+    // Trigger reflow to ensure transition works
+    setTimeout(() => {
+        notification.classList.remove('hidden');
+    }, 10);
     
     // Auto-hide after 3 seconds
     setTimeout(() => {
