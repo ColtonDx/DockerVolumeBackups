@@ -19,7 +19,6 @@ const customCronGroup = document.getElementById('customCronGroup');
 const enabledCheckbox = document.getElementById('enabled');
 const retentionCount = document.getElementById('retentionCount');
 const retentionGroup = document.getElementById('retentionGroup');
-const notification = document.getElementById('notification');
 
 // DOM elements - Settings
 const settingsBtn = document.getElementById('settingsBtn');
@@ -642,27 +641,9 @@ async function handleSaveSettings(e) {
         // Also save to localStorage for UI state
         saveSettings(settings);
         closeSettingsModal();
-        showNotification('Settings saved successfully!', 'success');
     } catch (error) {
         console.error('Error saving settings:', error);
-        showNotification('Failed to save settings. Please try again.', 'error');
     }
-}
-
-// Show notification
-function showNotification(message, type = 'success') {
-    notification.textContent = message;
-    notification.className = `notification ${type} hidden`;
-    
-    // Trigger reflow to ensure transition works
-    setTimeout(() => {
-        notification.classList.remove('hidden');
-    }, 10);
-    
-    // Auto-hide after 3 seconds
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 3000);
 }
 
 // Restore Modal Functions
