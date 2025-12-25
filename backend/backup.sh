@@ -112,8 +112,8 @@ done
 
 echo "Backed up $volume_count volumes"
 
-# Create final tar archive
-BACKUP_FILE="$BACKUP_SUBDIR.tar.gz"
+# Create final tar archive with new naming convention
+BACKUP_FILE="$BACKUP_DIR/${LABEL}-$(date +%Y%m%d_%H%M%S).tar.gz"
 echo "Creating archive: $BACKUP_FILE"
 tar -czf "$BACKUP_FILE" -C "$BACKUP_DIR" "${LABEL}_${TIMESTAMP}" 2>/dev/null || true
 

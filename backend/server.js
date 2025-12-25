@@ -212,6 +212,80 @@ app.post('/api/settings', (req, res) => {
   }
 });
 
+// GET backup labels
+app.get('/api/backups/labels', (req, res) => {
+  try {
+    const jobs = loadJobs();
+    // Return unique labels with their rclone settings
+    const labels = jobs.map(job => ({
+      label: job.backupLabel,
+      useRclone: job.useRclone || false,
+      remote: job.remote || ''
+    }));
+    res.json(labels);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load labels', details: err.message });
+  }
+});
+
+// GET list of backups for a label (from filesystem)
+app.get('/api/backups/local/:label', (req, res) => {
+  try {
+    const label = req.params.label;
+    const files = fs.readdirSync(BACKUP_DIR).filter(file => {
+      return file.startsWith(label + '-') && file.endsWith('.tar.gz');
+    });
+    res.json(files.sort().reverse()); // Most recent first
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to list backups', details: err.message });
+  }
+});
+
+// GET list of backups for a label from rclone remote
+app.get('/api/backups/remote/:label/:remote', (req, res) => {
+  try {
+    const label = req.params.label;
+    const remote = req.params.remote;
+
+    const proc = spawn('rclone', [
+      'ls',
+      '--config=' + RCLONE_CONFIG,
+      remote + ':/',
+      '-R'
+    ]);
+
+    let output = '';
+    let errorOutput = '';
+
+    proc.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    proc.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        return res.status(500).json({ error: 'Failed to list remote backups', details: errorOutput });
+      }
+
+      // Parse rclone output and filter by label
+      const files = output
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => line.trim().split(/\s+/).pop()) // Get filename
+        .filter(file => file && file.startsWith(label + '-') && file.endsWith('.tar.gz'))
+        .sort()
+        .reverse(); // Most recent first
+
+      res.json(files);
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to list remote backups', details: err.message });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Cron Job Scheduler running on http://localhost:${PORT}`);

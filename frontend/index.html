@@ -181,6 +181,38 @@
         </div>
     </div>
 
+    <!-- Restore Modal -->
+    <div id="restoreModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Restore from Backup</h2>
+                <span class="close" id="restoreClose">&times;</span>
+            </div>
+
+            <div id="restoreStep1" class="restore-step">
+                <p>Select a backup job label:</p>
+                <select id="restoreLabelSelect">
+                    <option value="">-- Loading labels --</option>
+                </select>
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-primary" id="restoreLabelNextBtn">Next</button>
+                    <button type="button" class="btn-secondary" id="restoreCloseBtn">Cancel</button>
+                </div>
+            </div>
+
+            <div id="restoreStep2" class="restore-step hidden">
+                <p>Select a backup to restore:</p>
+                <select id="restoreBackupSelect">
+                    <option value="">-- Loading backups --</option>
+                </select>
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-primary" id="restoreBackupBtn">Restore</button>
+                    <button type="button" class="btn-secondary" id="restoreBackBtn">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>

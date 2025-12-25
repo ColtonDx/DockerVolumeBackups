@@ -584,6 +584,23 @@ small {
     justify-content: center;
 }
 
+.restore-step {
+    display: block;
+}
+
+.restore-step.hidden {
+    display: none;
+}
+
+.restore-step select {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

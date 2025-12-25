@@ -29,6 +29,19 @@ const backupNameSchema = document.getElementById('backupNameSchema');
 const ignorePattern = document.getElementById('ignorePattern');
 const schemaPreview = document.getElementById('schemaPreview');
 
+// DOM elements - Restore Modal
+const restoreBtn = document.getElementById('restoreBtn');
+const restoreModal = document.getElementById('restoreModal');
+const restoreClose = document.getElementById('restoreClose');
+const restoreCloseBtn = document.getElementById('restoreCloseBtn');
+const restoreLabelSelect = document.getElementById('restoreLabelSelect');
+const restoreBackupSelect = document.getElementById('restoreBackupSelect');
+const restoreLabelNextBtn = document.getElementById('restoreLabelNextBtn');
+const restoreBackupBtn = document.getElementById('restoreBackupBtn');
+const restoreBackBtn = document.getElementById('restoreBackBtn');
+const restoreStep1 = document.getElementById('restoreStep1');
+const restoreStep2 = document.getElementById('restoreStep2');
+
 // DOM elements - Edit Modal
 const editModal = document.getElementById('editModal');
 const editForm = document.getElementById('editForm');
@@ -65,6 +78,14 @@ settingsBtn.addEventListener('click', toggleSettingsMenu);
 settingsLink.addEventListener('click', openSettingsModal);
 settingsClose.addEventListener('click', closeSettingsModal);
 cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+
+// Restore button and modal
+restoreBtn.addEventListener('click', openRestoreModal);
+restoreClose.addEventListener('click', closeRestoreModal);
+restoreCloseBtn.addEventListener('click', closeRestoreModal);
+restoreLabelNextBtn.addEventListener('click', handleRestoreLabelSelect);
+restoreBackupBtn.addEventListener('click', handleRestoreBackup);
+restoreBackBtn.addEventListener('click', handleRestoreBack);
 
 // Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
@@ -502,6 +523,96 @@ async function handleSaveSettings(e) {
         console.error('Error saving settings:', error);
         alert('Failed to save settings. Please try again.');
     }
+}
+
+// Restore Modal Functions
+async function openRestoreModal() {
+    try {
+        const response = await fetch('/api/backups/labels');
+        const labels = await response.json();
+        
+        // Populate label select
+        restoreLabelSelect.innerHTML = '<option value="">-- Select a label --</option>';
+        labels.forEach(item => {
+            const option = document.createElement('option');
+            option.value = JSON.stringify(item);
+            option.textContent = item.label;
+            restoreLabelSelect.appendChild(option);
+        });
+        
+        // Show step 1
+        restoreStep1.classList.remove('hidden');
+        restoreStep2.classList.add('hidden');
+        restoreModal.classList.remove('hidden');
+        restoreModal.classList.add('visible');
+    } catch (error) {
+        console.error('Error opening restore modal:', error);
+        alert('Failed to load backup labels');
+    }
+}
+
+function closeRestoreModal() {
+    restoreModal.classList.remove('visible');
+    restoreModal.classList.add('hidden');
+}
+
+async function handleRestoreLabelSelect() {
+    const selected = restoreLabelSelect.value;
+    if (!selected) {
+        alert('Please select a label');
+        return;
+    }
+    
+    const labelItem = JSON.parse(selected);
+    
+    try {
+        let backups = [];
+        
+        if (labelItem.useRclone && labelItem.remote) {
+            // Get backups from rclone remote
+            const response = await fetch(`/api/backups/remote/${labelItem.label}/${labelItem.remote}`);
+            backups = await response.json();
+        } else {
+            // Get backups from local filesystem
+            const response = await fetch(`/api/backups/local/${labelItem.label}`);
+            backups = await response.json();
+        }
+        
+        // Populate backup select
+        restoreBackupSelect.innerHTML = '<option value="">-- Select a backup --</option>';
+        backups.forEach(backup => {
+            const option = document.createElement('option');
+            option.value = backup;
+            option.textContent = backup;
+            restoreBackupSelect.appendChild(option);
+        });
+        
+        // Show step 2
+        restoreStep1.classList.add('hidden');
+        restoreStep2.classList.remove('hidden');
+    } catch (error) {
+        console.error('Error loading backups:', error);
+        alert('Failed to load backups');
+    }
+}
+
+function handleRestoreBack() {
+    restoreStep1.classList.remove('hidden');
+    restoreStep2.classList.add('hidden');
+}
+
+async function handleRestoreBackup() {
+    const backupFile = restoreBackupSelect.value;
+    if (!backupFile) {
+        alert('Please select a backup');
+        return;
+    }
+    
+    const labelItem = JSON.parse(restoreLabelSelect.value);
+    
+    // TODO: Implement actual restore functionality
+    alert(`Would restore: ${backupFile}\nLabel: ${labelItem.label}\nFrom: ${labelItem.useRclone ? labelItem.remote : 'local storage'}`);
+    closeRestoreModal();
 }
 
 // Auto-reload jobs every 10 seconds
