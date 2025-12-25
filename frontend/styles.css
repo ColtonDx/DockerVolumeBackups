@@ -249,7 +249,15 @@ small {
 
 .jobs-header h2 {
     margin: 0;
-}btn-primary:hover {
+}
+
+.jobs-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
     background: #5568d3;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
@@ -558,7 +566,24 @@ small {
     padding: 30px;
     border-radius: 10px;
     width: 90%;
- form-buttons {
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+}
+
+.form-buttons {
     display: flex;
     gap: 10px;
     margin-top: 20px;

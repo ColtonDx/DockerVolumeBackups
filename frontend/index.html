@@ -25,9 +25,12 @@
             <section class="jobs-section">
                 <div class="jobs-header">
                     <h2>Backup Jobs</h2>
-                    <button id="addJobBtn" class="btn-secondary">+ Add a Job</button>
                 </div>
                 <div id="jobsList" class="jobs-list"></div>
+                <div class="jobs-actions">
+                    <button id="addJobBtn" class="btn-primary">+ Add a Backup Job</button>
+                    <button id="restoreBtn" class="btn-secondary">📥 Restore Backup from Remote</button>
+                </div>
             </section>
 
             <section class="form-section hidden" id="formSection">
@@ -37,6 +40,19 @@
                         <label for="backupLabel">Backup Label:</label>
                         <input type="text" id="backupLabel" placeholder="e.g., database, app-data, media" required>
                         <small>A descriptive name for the volume(s) being backed up</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="useRclone">
+                            Use Rclone for remote backup
+                        </label>
+                    </div>
+
+                    <div class="form-group hidden" id="remoteGroup">
+                        <label for="remote">Rclone Remote:</label>
+                        <input type="text" id="remote" placeholder="e.g., s3, gdrive, azure" required>
+                        <small>The rclone remote to backup to</small>
                     </div>
 
                     <div class="form-group">
@@ -71,7 +87,9 @@
                 </form>
             </section>
         </main>
-    </div>backups -->
+    </div>
+
+    <!-- Edit Modal -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -121,8 +139,10 @@
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal hidden">
         <div class="modal-content">
-            <span class="close" id="settingsClose">&times;</span>
-            <h2>Backup Settings</h2>
+            <div class="modal-header">
+                <h2>Backup Settings</h2>
+                <span class="close" id="settingsClose">&times;</span>
+            </div>
             <form id="settingsForm">
                 <div class="form-group">
                     <label for="backupNameSchema">Backup Name Schema:</label>

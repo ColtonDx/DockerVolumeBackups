@@ -10,6 +10,9 @@ const jobForm = document.getElementById('jobForm');
 const formSection = document.getElementById('formSection');
 const cancelFormBtn = document.getElementById('cancelFormBtn');
 const backupLabel = document.getElementById('backupLabel');
+const useRclone = document.getElementById('useRclone');
+const remote = document.getElementById('remote');
+const remoteGroup = document.getElementById('remoteGroup');
 const frequency = document.getElementById('frequency');
 const customCronInput = document.getElementById('customCron');
 const customCronGroup = document.getElementById('customCronGroup');
@@ -56,6 +59,8 @@ const settingsMenu = document.getElementById('settingsMenu');
 const settingsLink = document.getElementById('settingsLink');
 settingsBtn.addEventListener('click', toggleSettingsMenu);
 settingsLink.addEventListener('click', openSettingsModal);
+settingsClose.addEventListener('click', closeSettingsModal);
+cancelSettingsBtn.addEventListener('click', closeSettingsModal);
 
 // Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
@@ -63,6 +68,9 @@ document.addEventListener('click', (e) => {
         settingsMenu.classList.add('hidden');
     }
 });
+
+// Form input handlers
+useRclone.addEventListener('change', handleRcloneToggle);
 
 // Other event listeners
 settingsForm.addEventListener('submit', handleSaveSettings);
@@ -108,6 +116,17 @@ function handleFrequencyChange() {
     } else {
         customCronGroup.classList.add('hidden');
         customCronInput.required = false;
+    }
+}
+
+// Handle rclone toggle
+function handleRcloneToggle() {
+    if (useRclone.checked) {
+        remoteGroup.classList.remove('hidden');
+        remote.required = true;
+    } else {
+        remoteGroup.classList.add('hidden');
+        remote.required = false;
     }
 }
 
@@ -216,7 +235,9 @@ async function handleCreateBackup(e) {
         backupLabel: backupLabel.value,
         frequency: freq,
         schedule: schedule,
-        enabled: enabledCheckbox.checked
+        enabled: enabledCheckbox.checked,
+        useRclone: useRclone.checked,
+        remote: useRclone.checked ? remote.value : ''
     };
 
     try {
@@ -230,11 +251,13 @@ async function handleCreateBackup(e) {
 
         // Reset form
         jobForm.reset();
+        remoteGroup.classList.add('hidden');
         customCronGroup.classList.add('hidden');
         enabledCheckbox.checked = true;
 
-        // Reload jobs
+        // Reload jobs and hide form
         loadAndDisplayJobs();
+        hideFormSection();
     } catch (error) {
         console.error('Error creating backup:', error);
         alert('Failed to create backup: ' + error.message);
