@@ -768,7 +768,12 @@ async function handleRestoreBackup() {
     
     const labelItem = JSON.parse(restoreLabelSelect.value);
     
-    if (!confirm(`Are you sure you want to restore from ${backupFile}?\n\nThis will:\n1. Stop containers with label: ${labelItem.label}\n2. Clear existing volume contents\n3. Restore from backup\n\nProceed?`)) {
+    const confirmed = await showConfirm(
+        `Are you sure you want to restore from ${backupFile}?\n\nThis will:\n1. Stop containers with label: ${labelItem.label}\n2. Clear existing volume contents\n3. Restore from backup\n\nProceed?`,
+        'Confirm Restore'
+    );
+    
+    if (!confirmed) {
         return;
     }
     
