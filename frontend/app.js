@@ -171,15 +171,17 @@ function handleFrequencyChange() {
 // Handle rclone toggle
 function handleRcloneToggle() {
     if (useRclone.checked) {
+        remote.disabled = false;
         remoteGroup.classList.remove('hidden');
         remote.required = true;
         retentionGroup.classList.add('hidden');
         retentionCount.disabled = true;
     } else {
-        remoteGroup.classList.add('hidden');
+        remote.disabled = true;
+        remoteGroup.classList.remove('hidden');
         remote.required = false;
         retentionGroup.classList.remove('hidden');
-        retentionCount.disabled = false;
+        retentionCount.disabled = true;
     }
 }
 
@@ -197,12 +199,14 @@ function handleEditFrequencyChange() {
 // Handle edit rclone toggle
 function handleEditRcloneToggle() {
     if (editUseRclone.checked) {
+        editRemote.disabled = false;
         editRemoteGroup.classList.remove('hidden');
         editRemote.required = true;
         editRetentionGroup.classList.add('hidden');
         editRetentionCount.disabled = true;
     } else {
-        editRemoteGroup.classList.add('hidden');
+        editRemote.disabled = true;
+        editRemoteGroup.classList.remove('hidden');
         editRemote.required = false;
         editRetentionGroup.classList.remove('hidden');
         editRetentionCount.disabled = false;

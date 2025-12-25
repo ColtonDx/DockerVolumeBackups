@@ -649,6 +649,15 @@ small {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     max-height: 90vh;
     overflow-y: auto;
+    color: #e0e0e0;
+}
+
+.modal-content p {
+    color: #e0e0e0;
+}
+
+.modal-content strong {
+    color: #ffffff;
 }
 
 .modal-header {
