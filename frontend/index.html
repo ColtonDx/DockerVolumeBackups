@@ -69,11 +69,41 @@
                         <select id="frequency" required>
                             <option value="">-- Select Frequency --</option>
                             <option value="hourly">Hourly (every hour)</option>
-                            <option value="daily">Daily (midnight)</option>
-                            <option value="weekly">Weekly (Sunday midnight)</option>
-                            <option value="monthly">Monthly (1st at midnight)</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
                             <option value="custom">Custom Cron Expression</option>
                         </select>
+                    </div>
+
+                    <div class="form-group hidden" id="dailyTimeGroup">
+                        <label for="dailyTime">Time of Day:</label>
+                        <input type="time" id="dailyTime" value="00:00">
+                        <small>What time each day should the backup run?</small>
+                    </div>
+
+                    <div class="form-group hidden" id="weeklyScheduleGroup">
+                        <label for="weeklyDay">Day of Week:</label>
+                        <select id="weeklyDay">
+                            <option value="0">Sunday</option>
+                            <option value="1">Monday</option>
+                            <option value="2">Tuesday</option>
+                            <option value="3">Wednesday</option>
+                            <option value="4">Thursday</option>
+                            <option value="5">Friday</option>
+                            <option value="6">Saturday</option>
+                        </select>
+                        <label for="weeklyTime" style="margin-top: 10px;">Time of Day:</label>
+                        <input type="time" id="weeklyTime" value="00:00">
+                        <small>What day and time each week should the backup run?</small>
+                    </div>
+
+                    <div class="form-group hidden" id="monthlyScheduleGroup">
+                        <label for="monthlyDay">Day of Month:</label>
+                        <input type="number" id="monthlyDay" min="1" max="31" value="1">
+                        <label for="monthlyTime" style="margin-top: 10px;">Time of Day:</label>
+                        <input type="time" id="monthlyTime" value="00:00">
+                        <small>What day and time each month should the backup run?</small>
                     </div>
 
                     <div class="form-group hidden" id="customCronGroup">
@@ -117,11 +147,41 @@
                     <select id="editFrequency" required>
                         <option value="">-- Select Frequency --</option>
                         <option value="hourly">Hourly (every hour)</option>
-                        <option value="daily">Daily (midnight)</option>
-                        <option value="weekly">Weekly (Sunday midnight)</option>
-                        <option value="monthly">Monthly (1st at midnight)</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
                         <option value="custom">Custom Cron Expression</option>
                     </select>
+                </div>
+
+                <div class="form-group hidden" id="editDailyTimeGroup">
+                    <label for="editDailyTime">Time of Day:</label>
+                    <input type="time" id="editDailyTime" value="00:00">
+                    <small>What time each day should the backup run?</small>
+                </div>
+
+                <div class="form-group hidden" id="editWeeklyScheduleGroup">
+                    <label for="editWeeklyDay">Day of Week:</label>
+                    <select id="editWeeklyDay">
+                        <option value="0">Sunday</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                    <label for="editWeeklyTime" style="margin-top: 10px;">Time of Day:</label>
+                    <input type="time" id="editWeeklyTime" value="00:00">
+                    <small>What day and time each week should the backup run?</small>
+                </div>
+
+                <div class="form-group hidden" id="editMonthlyScheduleGroup">
+                    <label for="editMonthlyDay">Day of Month:</label>
+                    <input type="number" id="editMonthlyDay" min="1" max="31" value="1">
+                    <label for="editMonthlyTime" style="margin-top: 10px;">Time of Day:</label>
+                    <input type="time" id="editMonthlyTime" value="00:00">
+                    <small>What day and time each month should the backup run?</small>
                 </div>
 
                 <div class="form-group hidden" id="editCustomCronGroup">

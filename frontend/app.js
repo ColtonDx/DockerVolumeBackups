@@ -16,6 +16,14 @@ const remoteGroup = document.getElementById('remoteGroup');
 const frequency = document.getElementById('frequency');
 const customCronInput = document.getElementById('customCron');
 const customCronGroup = document.getElementById('customCronGroup');
+const dailyTimeGroup = document.getElementById('dailyTimeGroup');
+const dailyTime = document.getElementById('dailyTime');
+const weeklyScheduleGroup = document.getElementById('weeklyScheduleGroup');
+const weeklyDay = document.getElementById('weeklyDay');
+const weeklyTime = document.getElementById('weeklyTime');
+const monthlyScheduleGroup = document.getElementById('monthlyScheduleGroup');
+const monthlyDay = document.getElementById('monthlyDay');
+const monthlyTime = document.getElementById('monthlyTime');
 const enabledCheckbox = document.getElementById('enabled');
 const retentionCount = document.getElementById('retentionCount');
 const retentionGroup = document.getElementById('retentionGroup');
@@ -56,6 +64,14 @@ const editBackupLabel = document.getElementById('editBackupLabel');
 const editFrequency = document.getElementById('editFrequency');
 const editCustomCronInput = document.getElementById('editCustomCron');
 const editCustomCronGroup = document.getElementById('editCustomCronGroup');
+const editDailyTimeGroup = document.getElementById('editDailyTimeGroup');
+const editDailyTime = document.getElementById('editDailyTime');
+const editWeeklyScheduleGroup = document.getElementById('editWeeklyScheduleGroup');
+const editWeeklyDay = document.getElementById('editWeeklyDay');
+const editWeeklyTime = document.getElementById('editWeeklyTime');
+const editMonthlyScheduleGroup = document.getElementById('editMonthlyScheduleGroup');
+const editMonthlyDay = document.getElementById('editMonthlyDay');
+const editMonthlyTime = document.getElementById('editMonthlyTime');
 const editUseRclone = document.getElementById('editUseRclone');
 const editRemote = document.getElementById('editRemote');
 const editRemoteGroup = document.getElementById('editRemoteGroup');
@@ -179,11 +195,25 @@ function hideFormSection() {
 
 // Handle frequency change to show/hide custom cron input
 function handleFrequencyChange() {
+    // Hide all schedule groups first
+    customCronGroup.classList.add('hidden');
+    dailyTimeGroup.classList.add('hidden');
+    weeklyScheduleGroup.classList.add('hidden');
+    monthlyScheduleGroup.classList.add('hidden');
+    
     if (frequency.value === 'custom') {
         customCronGroup.classList.remove('hidden');
         customCronInput.required = true;
+    } else if (frequency.value === 'daily') {
+        dailyTimeGroup.classList.remove('hidden');
+        customCronInput.required = false;
+    } else if (frequency.value === 'weekly') {
+        weeklyScheduleGroup.classList.remove('hidden');
+        customCronInput.required = false;
+    } else if (frequency.value === 'monthly') {
+        monthlyScheduleGroup.classList.remove('hidden');
+        customCronInput.required = false;
     } else {
-        customCronGroup.classList.add('hidden');
         customCronInput.required = false;
     }
 }
@@ -207,11 +237,25 @@ function handleRcloneToggle() {
 
 // Handle edit frequency change
 function handleEditFrequencyChange() {
+    // Hide all schedule groups first
+    editCustomCronGroup.classList.add('hidden');
+    editDailyTimeGroup.classList.add('hidden');
+    editWeeklyScheduleGroup.classList.add('hidden');
+    editMonthlyScheduleGroup.classList.add('hidden');
+    
     if (editFrequency.value === 'custom') {
         editCustomCronGroup.classList.remove('hidden');
         editCustomCronInput.required = true;
+    } else if (editFrequency.value === 'daily') {
+        editDailyTimeGroup.classList.remove('hidden');
+        editCustomCronInput.required = false;
+    } else if (editFrequency.value === 'weekly') {
+        editWeeklyScheduleGroup.classList.remove('hidden');
+        editCustomCronInput.required = false;
+    } else if (editFrequency.value === 'monthly') {
+        editMonthlyScheduleGroup.classList.remove('hidden');
+        editCustomCronInput.required = false;
     } else {
-        editCustomCronGroup.classList.add('hidden');
         editCustomCronInput.required = false;
     }
 }
@@ -234,11 +278,31 @@ function handleEditRcloneToggle() {
 }
 
 // Convert frequency to cron expression
-function getScheduleFromFrequency(freq, customCron) {
+function getScheduleFromFrequency(freq, customCron, options = {}) {
     if (freq === 'custom') {
         return customCron;
     }
-    return frequencyMap[freq] || frequencyMap['daily'];
+    if (freq === 'hourly') {
+        return '0 * * * *';
+    }
+    if (freq === 'daily') {
+        const time = options.dailyTime || '00:00';
+        const [hour, minute] = time.split(':');
+        return `${parseInt(minute)} ${parseInt(hour)} * * *`;
+    }
+    if (freq === 'weekly') {
+        const time = options.weeklyTime || '00:00';
+        const day = options.weeklyDay || '0';
+        const [hour, minute] = time.split(':');
+        return `${parseInt(minute)} ${parseInt(hour)} * * ${day}`;
+    }
+    if (freq === 'monthly') {
+        const time = options.monthlyTime || '00:00';
+        const day = options.monthlyDay || '1';
+        const [hour, minute] = time.split(':');
+        return `${parseInt(minute)} ${parseInt(hour)} ${day} * *`;
+    }
+    return '0 0 * * *'; // default to daily at midnight
 }
 
 // Load and display all jobs
@@ -335,7 +399,14 @@ async function handleCreateBackup(e) {
     }
 
     const freq = frequency.value;
-    const schedule = getScheduleFromFrequency(freq, customCronInput.value);
+    const scheduleOptions = {
+        dailyTime: dailyTime.value,
+        weeklyTime: weeklyTime.value,
+        weeklyDay: weeklyDay.value,
+        monthlyTime: monthlyTime.value,
+        monthlyDay: monthlyDay.value
+    };
+    const schedule = getScheduleFromFrequency(freq, customCronInput.value, scheduleOptions);
 
     const jobData = {
         backupLabel: backupLabel.value,
@@ -413,7 +484,14 @@ async function handleEditBackup(e) {
     e.preventDefault();
 
     const freq = editFrequency.value;
-    const schedule = getScheduleFromFrequency(freq, editCustomCronInput.value);
+    const scheduleOptions = {
+        dailyTime: editDailyTime.value,
+        weeklyTime: editWeeklyTime.value,
+        weeklyDay: editWeeklyDay.value,
+        monthlyTime: editMonthlyTime.value,
+        monthlyDay: editMonthlyDay.value
+    };
+    const schedule = getScheduleFromFrequency(freq, editCustomCronInput.value, scheduleOptions);
 
     // Validate rclone remote if rclone is enabled
     if (editUseRclone.checked && !editRemote.value.trim()) {
