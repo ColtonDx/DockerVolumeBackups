@@ -178,6 +178,11 @@ function showFormSection() {
     remote.disabled = true;
     useRclone.checked = false;
     retentionCount.disabled = false;
+    // Hide all schedule detail groups by default
+    dailyTimeGroup.classList.add('hidden');
+    weeklyScheduleGroup.classList.add('hidden');
+    monthlyScheduleGroup.classList.add('hidden');
+    customCronGroup.classList.add('hidden');
     formSection.classList.remove('hidden');
     formSection.scrollIntoView({ behavior: 'smooth' });
 }
