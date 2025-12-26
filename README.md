@@ -182,96 +182,16 @@ The app will be available at `http://localhost:3000`
 .
 ├── frontend/
 │   ├── index.html       # UI markup
-│   ├── app.js          # Frontend logic and API interactions
+│   ├── app.js          # Frontend logic
 │   └── styles.css      # Styling
 ├── backend/
-│   ├── server.js       # Express API server
+│   ├── server.js       # Express server and job scheduler
 │   ├── backup.sh       # Backup script
 │   └── restore.sh      # Restore script
 ├── docker-compose.yml  # Docker Compose configuration
 ├── Dockerfile          # Docker image definition
 ├── package.json        # Node.js dependencies
 └── README.md          # This file
-```
-
-## API Reference
-
-### Jobs Endpoints
-
-#### GET /api/jobs
-List all backup jobs.
-
-#### POST /api/jobs
-Create a new backup job.
-
-**Body**:
-```json
-{
-  "backupLabel": "myapp",
-  "frequency": "daily",
-  "schedule": "0 2 * * *",
-  "enabled": true,
-  "useRclone": false,
-  "remote": "",
-  "retentionCount": 5
-}
-```
-
-#### GET /api/jobs/:id
-Get a specific job.
-
-#### PUT /api/jobs/:id
-Update a job.
-
-#### DELETE /api/jobs/:id
-Delete a job.
-
-#### POST /api/jobs/:id/run
-Manually trigger a backup for a job.
-
-### Backup Endpoints
-
-#### GET /api/backups/labels
-List all available backup labels and their metadata.
-
-#### GET /api/backups/local/:label
-List local backups for a label.
-
-#### GET /api/backups/remote/:label/:remote
-List backups on a remote storage for a label.
-
-### Restore Endpoint
-
-#### POST /api/restore
-Restore a volume from a backup.
-
-**Body**:
-```json
-{
-  "label": "myapp",
-  "backupFile": "backup_myapp_20251225",
-  "isRemote": false,
-  "remote": ""
-}
-```
-
-### Settings Endpoints
-
-#### GET /api/settings
-Get current settings.
-
-#### POST /api/settings
-Save settings.
-
-**Body**:
-```json
-{
-  "backupNameSchema": "backup_{label}_{date}",
-  "backgroundGradientStart": "#1a1a2e",
-  "backgroundGradientEnd": "#16213e",
-  "ignorePatterns": [".*\.log$", "node_modules"],
-  "rcloneConfig": "..."
-}
 ```
 
 ## Troubleshooting
