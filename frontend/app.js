@@ -873,6 +873,10 @@ async function handleRestoreLabelSelect() {
     
     const labelItem = JSON.parse(selected);
     
+    // Disable button and show loading state
+    restoreLabelNextBtn.disabled = true;
+    restoreLabelNextBtn.textContent = 'Loading Backups...';
+    
     try {
         let backups = [];
         let response;
@@ -895,6 +899,10 @@ async function handleRestoreLabelSelect() {
         
         backups = await response.json();
         console.log(`Found ${backups.length} backups:`, backups);
+            // Re-enable button
+            restoreLabelNextBtn.disabled = false;
+            restoreLabelNextBtn.textContent = 'Next';
+        
         
         // Populate backup select
         restoreBackupSelect.innerHTML = '<option value="">-- Select a backup --</option>';
@@ -910,7 +918,18 @@ async function handleRestoreLabelSelect() {
         restoreStep2.classList.remove('hidden');
     } catch (error) {
         console.error('Error loading backups:', error);
+            // Re-enable button on error
+            restoreLabelNextBtn.disabled = false;
+            restoreLabelNextBtn.textContent = 'Next';
         alert('Failed to load backups: ' + error.message);
+        // Disable button and show restoring state
+        restoreBackupBtn.disabled = true;
+        restoreBackupBtn.textContent = 'Restoring...';
+        restoreBackBtn.disabled = true;
+    
+        restoreBackupBtn.disabled = false;
+        restoreBackupBtn.textContent = 'Restore';
+        restoreBackBtn.disabled = false;
     }
 }
 
@@ -959,6 +978,9 @@ async function handleRestoreBackup() {
         await showInfo(`Restore completed successfully!\n\nLabel: ${result.label}`, 'Restore Complete');
     } catch (error) {
         console.error('Error restoring backup:', error);
+            restoreBackupBtn.disabled = false;
+            restoreBackupBtn.textContent = 'Restore';
+            restoreBackBtn.disabled = false;
         await showInfo('Failed to restore backup: ' + error.message, 'Restore Failed');
     }
 }
