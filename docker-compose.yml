@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     volumes:
       - data:/app/data
-      - /backups:/rclone/rclone.conf:ro
+      - /backups/rclone.conf:/rclone/rclone.conf
       - /backups:/backups
       - /var/lib/docker/volumes:/var/lib/docker/volumes
       - /var/run/docker.sock:/var/run/docker.sock:ro
