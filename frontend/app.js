@@ -219,18 +219,23 @@ function handleFrequencyChange() {
     dailyTimeGroup.classList.add('hidden');
     weeklyScheduleGroup.classList.add('hidden');
     monthlyScheduleGroup.classList.add('hidden');
+    console.log('[create] frequency changed:', frequency.value);
     
     if (frequency.value === 'custom') {
         customCronGroup.classList.remove('hidden');
+        console.log('[create] showing: customCronGroup');
         customCronInput.required = true;
     } else if (frequency.value === 'daily') {
         dailyTimeGroup.classList.remove('hidden');
+        console.log('[create] showing: dailyTimeGroup');
         customCronInput.required = false;
     } else if (frequency.value === 'weekly') {
         weeklyScheduleGroup.classList.remove('hidden');
+        console.log('[create] showing: weeklyScheduleGroup');
         customCronInput.required = false;
     } else if (frequency.value === 'monthly') {
         monthlyScheduleGroup.classList.remove('hidden');
+        console.log('[create] showing: monthlyScheduleGroup');
         customCronInput.required = false;
     } else {
         customCronInput.required = false;
@@ -261,18 +266,23 @@ function handleEditFrequencyChange() {
     editDailyTimeGroup.classList.add('hidden');
     editWeeklyScheduleGroup.classList.add('hidden');
     editMonthlyScheduleGroup.classList.add('hidden');
+    console.log('[edit] frequency changed:', editFrequency.value);
     
     if (editFrequency.value === 'custom') {
         editCustomCronGroup.classList.remove('hidden');
+        console.log('[edit] showing: editCustomCronGroup');
         editCustomCronInput.required = true;
     } else if (editFrequency.value === 'daily') {
         editDailyTimeGroup.classList.remove('hidden');
+        console.log('[edit] showing: editDailyTimeGroup');
         editCustomCronInput.required = false;
     } else if (editFrequency.value === 'weekly') {
         editWeeklyScheduleGroup.classList.remove('hidden');
+        console.log('[edit] showing: editWeeklyScheduleGroup');
         editCustomCronInput.required = false;
     } else if (editFrequency.value === 'monthly') {
         editMonthlyScheduleGroup.classList.remove('hidden');
+        console.log('[edit] showing: editMonthlyScheduleGroup');
         editCustomCronInput.required = false;
     } else {
         editCustomCronInput.required = false;
