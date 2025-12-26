@@ -848,6 +848,13 @@ async function openRestoreModal() {
             restoreLabelSelect.appendChild(option);
         });
         
+        // Reset button states every time modal opens
+        restoreLabelNextBtn.disabled = false;
+        restoreLabelNextBtn.textContent = 'Next';
+        restoreBackupBtn.disabled = false;
+        restoreBackupBtn.textContent = 'Restore';
+        restoreBackBtn.disabled = false;
+        
         // Show step 1
         restoreStep1.classList.remove('hidden');
         restoreStep2.classList.add('hidden');
@@ -862,6 +869,13 @@ async function openRestoreModal() {
 function closeRestoreModal() {
     restoreModal.classList.remove('visible');
     restoreModal.classList.add('hidden');
+    
+    // Reset buttons when closing to avoid stale labels
+    restoreLabelNextBtn.disabled = false;
+    restoreLabelNextBtn.textContent = 'Next';
+    restoreBackupBtn.disabled = false;
+    restoreBackupBtn.textContent = 'Restore';
+    restoreBackBtn.disabled = false;
 }
 
 async function handleRestoreLabelSelect() {
