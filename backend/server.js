@@ -359,6 +359,10 @@ app.get('/api/backups/remote/:label/:remote', (req, res) => {
     const label = req.params.label;
     const remote = req.params.remote;
 
+    console.log(`[Remote Backups] Listing backups for label: ${label}, remote: ${remote}`);
+    console.log(`[Remote Backups] Using rclone config: ${RCLONE_CONFIG}`);
+    console.log(`[Remote Backups] Config exists: ${fs.existsSync(RCLONE_CONFIG)}`);
+
     const proc = spawn('rclone', [
       'ls',
       '--config=' + RCLONE_CONFIG,
@@ -370,30 +374,50 @@ app.get('/api/backups/remote/:label/:remote', (req, res) => {
     let errorOutput = '';
 
     proc.stdout.on('data', (data) => {
-      output += data.toString();
+      const dataStr = data.toString();
+      output += dataStr;
+      console.log(`[Remote Backups] stdout: ${dataStr.trim()}`);
     });
 
     proc.stderr.on('data', (data) => {
-      errorOutput += data.toString();
+      const dataStr = data.toString();
+      errorOutput += dataStr;
+      console.error(`[Remote Backups] stderr: ${dataStr.trim()}`);
     });
 
     proc.on('close', (code) => {
+      console.log(`[Remote Backups] rclone ls exited with code: ${code}`);
+      
       if (code !== 0) {
-        return res.status(500).json({ error: 'Failed to list remote backups', details: errorOutput });
+        console.error(`[Remote Backups] Error output: ${errorOutput}`);
+        return res.status(500).json({ error: 'Failed to list remote backups', details: errorOutput || 'rclone command failed' });
       }
 
+      console.log(`[Remote Backups] Raw output length: ${output.length}`);
+      
       // Parse rclone output and filter by label
       const files = output
         .split('\n')
         .filter(line => line.trim())
-        .map(line => line.trim().split(/\s+/).pop()) // Get filename
+        .map(line => {
+          const filename = line.trim().split(/\s+/).pop();
+          console.log(`[Remote Backups] Parsed line: ${line.trim()} -> filename: ${filename}`);
+          return filename;
+        })
         .filter(file => file && file.startsWith(label + '-') && file.endsWith('.tar.gz'))
         .sort()
         .reverse(); // Most recent first
 
+      console.log(`[Remote Backups] Found ${files.length} matching files:`, files);
       res.json(files);
     });
+
+    proc.on('error', (err) => {
+      console.error(`[Remote Backups] Process error: ${err.message}`);
+      res.status(500).json({ error: 'Failed to spawn rclone process', details: err.message });
+    });
   } catch (err) {
+    console.error(`[Remote Backups] Exception: ${err.message}`);
     res.status(500).json({ error: 'Failed to list remote backups', details: err.message });
   }
 });

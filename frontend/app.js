@@ -875,16 +875,26 @@ async function handleRestoreLabelSelect() {
     
     try {
         let backups = [];
+        let response;
         
         if (labelItem.useRclone && labelItem.remote) {
             // Get backups from rclone remote
-            const response = await fetch(`/api/backups/remote/${labelItem.label}/${labelItem.remote}`);
-            backups = await response.json();
+            console.log(`Fetching remote backups for label: ${labelItem.label}, remote: ${labelItem.remote}`);
+            response = await fetch(`/api/backups/remote/${labelItem.label}/${labelItem.remote}`);
         } else {
             // Get backups from local filesystem
-            const response = await fetch(`/api/backups/local/${labelItem.label}`);
-            backups = await response.json();
+            console.log(`Fetching local backups for label: ${labelItem.label}`);
+            response = await fetch(`/api/backups/local/${labelItem.label}`);
         }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error response:', errorData);
+            throw new Error(errorData.details || errorData.error || 'Failed to load backups');
+        }
+        
+        backups = await response.json();
+        console.log(`Found ${backups.length} backups:`, backups);
         
         // Populate backup select
         restoreBackupSelect.innerHTML = '<option value="">-- Select a backup --</option>';
@@ -900,7 +910,7 @@ async function handleRestoreLabelSelect() {
         restoreStep2.classList.remove('hidden');
     } catch (error) {
         console.error('Error loading backups:', error);
-        alert('Failed to load backups');
+        alert('Failed to load backups: ' + error.message);
     }
 }
 
