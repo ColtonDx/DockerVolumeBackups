@@ -4,7 +4,7 @@ A web-based application for scheduling and managing Docker volume backups with s
 
 ## Overview
 
-Docker Volume Backups provides an intuitive interface to:
+Docker Volume Backups provides an interface to:
 - **Schedule automated backups** of Docker volumes at regular intervals
 - **Manage backup jobs** with granular control over frequency and retention
 - **Restore volumes** from previously created backups
@@ -12,14 +12,6 @@ Docker Volume Backups provides an intuitive interface to:
 - **Configure backup naming and filtering** to match your workflow
 
 ## How It Works
-
-### Architecture
-
-The application consists of three main components:
-
-1. **Frontend (Web UI)**: HTML/CSS/JavaScript interface served via Express
-2. **Backend (Node.js/Express)**: REST API that manages jobs, schedules backups, and handles restore operations
-3. **Backup/Restore Scripts**: Shell scripts that interact with Docker and manage volume data
 
 ### Backup Flow
 
@@ -142,16 +134,9 @@ Customize the app's background with a gradient. Select start and end colors to c
 #### Rclone Configuration
 Paste your rclone configuration here (from `~/.config/rclone/rclone.conf`). This allows the app to access configured remotes.
 
-**Warning**: This field contains sensitive credentials. Keep your rclone config secure and never share it publicly.
-
 ## Installation & Setup
 
-### Prerequisites
-- Docker and Docker Compose
-- Node.js 14+ (if running without Docker)
-- rclone (optional, for remote backup support)
-
-### Docker Setup (Recommended)
+### Docker Setup
 
 ```bash
 # Clone the repository
@@ -163,36 +148,6 @@ docker-compose up --build
 ```
 
 The app will be available at `http://localhost:3000`
-
-### Local Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Start the server
-npm start
-```
-
-The app will be available at `http://localhost:3000`
-
-## File Structure
-
-```
-.
-├── frontend/
-│   ├── index.html       # UI markup
-│   ├── app.js          # Frontend logic
-│   └── styles.css      # Styling
-├── backend/
-│   ├── server.js       # Express server and job scheduler
-│   ├── backup.sh       # Backup script
-│   └── restore.sh      # Restore script
-├── docker-compose.yml  # Docker Compose configuration
-├── Dockerfile          # Docker image definition
-├── package.json        # Node.js dependencies
-└── README.md          # This file
-```
 
 ## Troubleshooting
 
@@ -218,10 +173,6 @@ The app will be available at `http://localhost:3000`
 - The web UI is intended for internal/trusted networks. Do not expose it to the public internet without authentication.
 - Rclone configurations contain sensitive credentials. Keep them secure and never commit to version control.
 - Backup files may contain sensitive data. Restrict access and encryption accordingly.
-
-## License
-
-See LICENSE file for details.
 
 ## Support & Documentation
 
