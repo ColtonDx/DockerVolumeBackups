@@ -24,12 +24,13 @@ const requireAuth = (req, res, next) => {
     return next();
   }
   
-  const token = req.headers['x-auth-token'];
-  if (token === ADMIN_PASSWORD) {
+  // Allow auth endpoints without token
+  if (req.path === '/auth/check' || req.path === '/auth/login') {
     return next();
   }
   
-  if (req.path === '/api/auth/check' || req.path === '/api/auth/login') {
+  const token = req.headers['x-auth-token'];
+  if (token === ADMIN_PASSWORD) {
     return next();
   }
   
