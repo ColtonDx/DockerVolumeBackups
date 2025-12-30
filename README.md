@@ -138,16 +138,80 @@ Paste your rclone configuration here (from `~/.config/rclone/rclone.conf`). This
 
 ### Docker Setup
 
+#### Using Docker Hub Registry
+
+```bash
+# Create a docker-compose.yml file
+services:
+  backup-manager:
+    image: coltondx/docker-volume-backup-manager
+    container_name: backup-manager
+    ports:
+      - "3000:3000"
+    volumes:
+      - data:/app/data
+      - /backups/rclone.conf:/rclone/rclone.conf
+      - /backups:/backups
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - admin_password=${ADMIN_PASSWORD:-}
+    restart: unless-stopped
+
+volumes:
+  data:
+
+# Run the container
+docker-compose up -d
+```
+
+#### Building Locally
+
 ```bash
 # Clone the repository
-git clone https://github.com/ColtonDx/DockerVolumeBackups.git
-cd DockerVolumeBackups
+git clone https://github.com/ColtonDx/Docker-Volume-Backup-Manager.git
+cd Docker-Volume-Backup-Manager
 
 # Build and run
 docker-compose up --build
 ```
 
 The app will be available at `http://localhost:3000`
+
+### Authentication
+
+The application supports optional password protection via the `admin_password` environment variable.
+
+**Without Password (Default)**:
+- No login page is shown
+- The application loads immediately with full access
+- Set by: Not providing the `admin_password` variable, or leaving it empty
+
+**With Password**:
+- A login page is displayed on first access
+- Users must enter the password to access the application
+- Set by: `docker-compose up` with `ADMIN_PASSWORD=your_secure_password`
+
+**Configuration**:
+
+Option 1 - Using `.env` file (recommended):
+```
+# .env file
+ADMIN_PASSWORD=your_secure_password
+```
+
+Option 2 - Command line:
+```bash
+ADMIN_PASSWORD=your_secure_password docker-compose up -d
+```
+
+Option 3 - In docker-compose.yml directly (not recommended):
+```yaml
+environment:
+  - admin_password=your_secure_password
+```
+
+**Security Note**: When password protection is enabled, sessions are stored in the browser's sessionStorage. The password is transmitted as an HTTP header with each API request. For production use over the internet, use HTTPS to encrypt all communications.
 
 ## Troubleshooting
 
@@ -167,12 +231,6 @@ The app will be available at `http://localhost:3000`
 2. Test your remote: `rclone ls <remote>:`
 3. Ensure the rclone configuration is correctly entered in Settings
 4. Check that the remote has appropriate permissions and credentials
-
-## Security Notes
-
-- The web UI is intended for internal/trusted networks. Do not expose it to the public internet without authentication.
-- Rclone configurations contain sensitive credentials. Keep them secure and never commit to version control.
-- Backup files may contain sensitive data. Restrict access and encryption accordingly.
 
 ## Support & Documentation
 

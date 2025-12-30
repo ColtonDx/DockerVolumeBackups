@@ -7,10 +7,30 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Notification -->
-    <div id="notification" class="notification hidden"></div>
-    
-    <div class="container">
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page hidden">
+        <div class="login-container">
+            <div class="login-box">
+                <h1>🐳 Docker Volume Backup Manager</h1>
+                <p class="login-subtitle">Secure Access Required</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="passwordInput">Admin Password:</label>
+                        <input type="password" id="passwordInput" placeholder="Enter admin password" required autofocus>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
+                    <div id="loginError" class="login-error hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Notification -->
+        <div id="notification" class="notification hidden"></div>
+        
+        <div class="container">
         <header>
             <div class="header-top">
                 <h1>🐳 Docker Volume Backup Manager</h1>
@@ -18,6 +38,7 @@
                     <button id="settingsBtn" class="menu-btn" title="Menu">⚙️</button>
                     <div id="settingsMenu" class="dropdown-menu hidden">
                         <button id="settingsLink" class="menu-item">⚙️ Backup Settings</button>
+                        <button id="logoutBtn" class="menu-item hidden" style="border-top: 1px solid #444; color: #ff6b6b;">🚪 Logout</button>
                     </div>
                 </div>
             </div>
@@ -342,6 +363,7 @@
             <div class="modal-buttons">
                 <button id="infoOk" class="btn-primary">OK</button>
             </div>
+        </div>
         </div>
     </div>
 

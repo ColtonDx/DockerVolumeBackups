@@ -1026,3 +1026,86 @@ body.dark-mode small {
 body.dark-mode .dropdown-menu {
     background: rgba(20, 20, 40, 0.98);
 }
+
+/* Login Page Styles */
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.login-page.hidden {
+    display: none;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-box {
+    background: rgba(42, 42, 62, 0.95);
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.login-box h1 {
+    text-align: center;
+    color: #e0e0e0;
+    margin-bottom: 10px;
+    font-size: 2em;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #b0b0b0;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+.login-box .form-group {
+    margin-bottom: 20px;
+}
+
+.login-box label {
+    display: block;
+    margin-bottom: 8px;
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    font-size: 1em;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    transition: border-color 0.3s;
+}
+
+.login-box input[type="password"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+
+.login-error {
+    color: #ff6b6b;
+    font-size: 0.9em;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.login-error.hidden {
+    display: none;
+}
+
+.main-app.hidden {
+    display: none;
+}
