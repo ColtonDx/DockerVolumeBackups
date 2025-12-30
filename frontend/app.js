@@ -5,15 +5,26 @@ let requiresAuth = false;
 // Check authentication on page load
 async function checkAuth() {
   try {
+    // Check if token exists from previous session
+    const savedToken = sessionStorage.getItem('authToken');
+    if (savedToken) {
+      authToken = savedToken;
+    }
+    
     const response = await fetch('/api/auth/check');
     const data = await response.json();
     requiresAuth = data.requiresAuth;
     
     if (!requiresAuth) {
+      // No authentication required - show main app
       showMainApp();
-    } else if (data.isAuthenticated) {
+      loadAndDisplayJobs();
+    } else if (data.isAuthenticated || authToken) {
+      // Authentication required and user is authenticated
       showMainApp();
+      loadAndDisplayJobs();
     } else {
+      // Authentication required but user is not authenticated
       showLoginPage();
     }
   } catch (err) {
@@ -251,6 +262,11 @@ cancelEditBtn.addEventListener('click', closeEditModal);
 async function initialize() {
     // Check authentication first
     await checkAuth();
+    
+    // Don't continue if login is required
+    if (requiresAuth && !authToken) {
+        return;
+    }
     
     // Ensure all schedule detail groups start hidden
     if (dailyTimeGroup) dailyTimeGroup.classList.add('hidden');
@@ -1085,5 +1101,9 @@ async function handleRestoreBackup() {
     }
 }
 
-// Auto-reload jobs every 10 seconds
-setInterval(loadAndDisplayJobs, 10000);
+// Auto-reload jobs every 10 seconds (only if authenticated)
+setInterval(() => {
+    if (authToken || !requiresAuth) {
+        loadAndDisplayJobs();
+    }
+}, 10000);
