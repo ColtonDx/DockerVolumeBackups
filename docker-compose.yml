@@ -1,6 +1,6 @@
 services:
   backup-manager:
-    image: coltondx/docker-volume-backup-manager
+    build: .
     container_name: backup-manager
     ports:
       - "3000:3000"
