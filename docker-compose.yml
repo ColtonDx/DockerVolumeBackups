@@ -1,11 +1,9 @@
 version: '3.8'
 
 services:
-  cron-scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cron-job-scheduler
+  backup-manager:
+    image: coltondx/docker-volume-backup-manager
+    container_name: backup-manager
     ports:
       - "3000:3000"
     volumes:
