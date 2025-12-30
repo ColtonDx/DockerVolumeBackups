@@ -12,8 +12,31 @@ const BACKUP_SCRIPT = path.join(__dirname, './backup.sh');
 const BACKUP_DIR = '/backups';
 const RCLONE_CONFIG = '/rclone/rclone.conf';
 
+// Get admin password from environment
+const ADMIN_PASSWORD = process.env.admin_password || null;
+
 // Middleware
 app.use(bodyParser.json());
+
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (!ADMIN_PASSWORD) {
+    return next();
+  }
+  
+  const token = req.headers['x-auth-token'];
+  if (token === ADMIN_PASSWORD) {
+    return next();
+  }
+  
+  if (req.path === '/api/auth/check' || req.path === '/api/auth/login') {
+    return next();
+  }
+  
+  res.status(401).json({ error: 'Unauthorized' });
+};
+
+app.use('/api', requireAuth);
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Ensure data directory exists
@@ -161,6 +184,32 @@ function initCronJob(job) {
   activeJobs[job.id] = task;
   console.log(`Scheduled backup: ${job.backupLabel} (${job.schedule})`);
 }
+
+// Authentication endpoints
+app.post('/api/auth/login', (req, res) => {
+  const { password } = req.body;
+  
+  if (!ADMIN_PASSWORD) {
+    return res.json({ authenticated: true, token: null });
+  }
+  
+  if (!password || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Invalid password' });
+  }
+  
+  res.json({ authenticated: true, token: ADMIN_PASSWORD });
+});
+
+app.get('/api/auth/check', (req, res) => {
+  if (!ADMIN_PASSWORD) {
+    return res.json({ requiresAuth: false });
+  }
+  
+  const token = req.headers['x-auth-token'];
+  const isAuthenticated = token === ADMIN_PASSWORD;
+  
+  res.json({ requiresAuth: true, isAuthenticated });
+});
 
 // GET all jobs
 app.get('/api/jobs', (req, res) => {
@@ -495,6 +544,7 @@ function startRestore(label, backupPath, res) {
 // Start server
 app.listen(PORT, () => {
   console.log(`Cron Job Scheduler running on http://localhost:${PORT}`);
+  console.log(`Authentication: ${ADMIN_PASSWORD ? 'ENABLED' : 'DISABLED'}`);
   
   // Load global settings
   globalSettings = loadSettings();

@@ -1,3 +1,99 @@
+// Authentication state
+let authToken = null;
+let requiresAuth = false;
+
+// Check authentication on page load
+async function checkAuth() {
+  try {
+    const response = await fetch('/api/auth/check');
+    const data = await response.json();
+    requiresAuth = data.requiresAuth;
+    
+    if (!requiresAuth) {
+      showMainApp();
+    } else if (data.isAuthenticated) {
+      showMainApp();
+    } else {
+      showLoginPage();
+    }
+  } catch (err) {
+    console.error('Auth check failed:', err);
+    showLoginPage();
+  }
+}
+
+function showLoginPage() {
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+}
+
+function showMainApp() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  if (requiresAuth) {
+    document.getElementById('logoutBtn').classList.remove('hidden');
+  }
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const password = document.getElementById('passwordInput').value;
+  const loginError = document.getElementById('loginError');
+  
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    
+    if (!response.ok) {
+      loginError.textContent = 'Invalid password';
+      loginError.classList.remove('hidden');
+      return;
+    }
+    
+    const data = await response.json();
+    authToken = data.token;
+    
+    if (authToken) {
+      sessionStorage.setItem('authToken', authToken);
+    }
+    
+    showMainApp();
+    loadAndDisplayJobs();
+  } catch (err) {
+    console.error('Login failed:', err);
+    loginError.textContent = 'Login failed';
+    loginError.classList.remove('hidden');
+  }
+}
+
+function handleLogout() {
+  authToken = null;
+  sessionStorage.removeItem('authToken');
+  document.getElementById('loginForm').reset();
+  document.getElementById('loginError').classList.add('hidden');
+  showLoginPage();
+}
+
+function getFetchOptions(method = 'GET', body = null) {
+  const options = {
+    method: method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  
+  if (authToken) {
+    options.headers['x-auth-token'] = authToken;
+  }
+  
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+  
+  return options;
+}
+
 // API endpoints
 const API_URL = '/api/jobs';
 // Debug logging toggle
@@ -138,6 +234,10 @@ document.addEventListener('click', (e) => {
 useRclone.addEventListener('change', handleRcloneToggle);
 editUseRclone.addEventListener('change', handleEditRcloneToggle);
 
+// Login/Logout handlers
+document.getElementById('loginForm').addEventListener('submit', handleLogin);
+document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
 // Other event listeners
 settingsForm.addEventListener('submit', handleSaveSettings);
 backupNameSchema.addEventListener('input', updateSchemaPreview);
@@ -149,6 +249,9 @@ cancelEditBtn.addEventListener('click', closeEditModal);
 
 // Initialize
 async function initialize() {
+    // Check authentication first
+    await checkAuth();
+    
     // Ensure all schedule detail groups start hidden
     if (dailyTimeGroup) dailyTimeGroup.classList.add('hidden');
     if (weeklyScheduleGroup) weeklyScheduleGroup.classList.add('hidden');
@@ -339,7 +442,7 @@ function getScheduleFromFrequency(freq, customCron, options = {}) {
 // Load and display all jobs
 async function loadAndDisplayJobs() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, getFetchOptions());
         const jobs = await response.json();
         displayJobs(jobs);
     } catch (error) {
@@ -450,11 +553,7 @@ async function handleCreateBackup(e) {
     };
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(jobData)
-        });
+        const response = await fetch(API_URL, getFetchOptions('POST', jobData));
 
         if (!response.ok) throw new Error('Failed to create backup');
 
@@ -476,7 +575,7 @@ async function handleCreateBackup(e) {
 // Open edit modal
 async function openEditModal(jobId) {
     try {
-        const response = await fetch(`${API_URL}/${jobId}`);
+        const response = await fetch(`${API_URL}/${jobId}`, getFetchOptions());
         if (!response.ok) throw new Error('Job not found');
         const job = await response.json();
 
@@ -540,11 +639,7 @@ async function handleEditBackup(e) {
     };
 
     try {
-        const response = await fetch(`${API_URL}/${editJobId.value}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(jobData)
-        });
+        const response = await fetch(`${API_URL}/${editJobId.value}`, getFetchOptions('PUT', jobData));
 
         if (!response.ok) throw new Error('Failed to update backup');
 
@@ -630,17 +725,13 @@ function showInfo(message, title = 'Success', isError = false) {
 // Toggle job enabled/disabled
 async function toggleJob(jobId) {
     try {
-        const response = await fetch(`${API_URL}/${jobId}`);
+        const response = await fetch(`${API_URL}/${jobId}`, getFetchOptions());
         if (!response.ok) throw new Error('Job not found');
         const job = await response.json();
 
         const updatedJob = { ...job, enabled: !job.enabled };
 
-        const updateResponse = await fetch(`${API_URL}/${jobId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedJob)
-        });
+        const updateResponse = await fetch(`${API_URL}/${jobId}`, getFetchOptions('PUT', updatedJob));
 
         if (!updateResponse.ok) throw new Error('Failed to update job');
 
@@ -657,9 +748,7 @@ async function deleteJob(jobId) {
     if (!confirmed) return;
 
     try {
-        const response = await fetch(`${API_URL}/${jobId}`, {
-            method: 'DELETE'
-        });
+        const response = await fetch(`${API_URL}/${jobId}`, getFetchOptions('DELETE'));
 
         if (!response.ok) throw new Error('Failed to delete job');
 
@@ -673,9 +762,7 @@ async function deleteJob(jobId) {
 // Manual run backup
 async function manualRunBackup(jobId) {
     try {
-        const response = await fetch(`/api/jobs/${jobId}/run`, {
-            method: 'POST'
-        });
+        const response = await fetch(`/api/jobs/${jobId}/run`, getFetchOptions('POST'));
 
         if (!response.ok) throw new Error('Failed to start backup');
         
@@ -703,7 +790,7 @@ function escapeHtml(text) {
 function loadSettings() {
     try {
         // Load from backend first
-        fetch('/api/settings')
+        fetch('/api/settings', getFetchOptions())
             .then(r => r.json())
             .then(settings => {
                 backupNameSchema.value = settings.backupNameSchema || 'backup_{label}_{date}';
@@ -814,11 +901,7 @@ async function handleSaveSettings(e) {
     
     try {
         // Save to backend
-        const response = await fetch('/api/settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(settings)
-        });
+        const response = await fetch('/api/settings', getFetchOptions('POST', settings));
 
         if (!response.ok) throw new Error('Failed to save settings');
 
@@ -836,7 +919,7 @@ async function handleSaveSettings(e) {
 // Restore Modal Functions
 async function openRestoreModal() {
     try {
-        const response = await fetch('/api/backups/labels');
+        const response = await fetch('/api/backups/labels', getFetchOptions());
         const labels = await response.json();
         
         // Populate label select
@@ -904,11 +987,11 @@ async function handleRestoreLabelSelect() {
         if (labelItem.useRclone && labelItem.remote) {
             // Get backups from rclone remote
             console.log(`Fetching remote backups for label: ${labelItem.label}, remote: ${labelItem.remote}`);
-            response = await fetch(`/api/backups/remote/${labelItem.label}/${labelItem.remote}`);
+            response = await fetch(`/api/backups/remote/${labelItem.label}/${labelItem.remote}`, getFetchOptions());
         } else {
             // Get backups from local filesystem
             console.log(`Fetching local backups for label: ${labelItem.label}`);
-            response = await fetch(`/api/backups/local/${labelItem.label}`);
+            response = await fetch(`/api/backups/local/${labelItem.label}`, getFetchOptions());
         }
         
         if (!response.ok) {
@@ -976,16 +1059,12 @@ async function handleRestoreBackup() {
     restoreClose.classList.add('disabled');
     
     try {
-        const response = await fetch('/api/restore', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                label: labelItem.label,
-                backupFile: backupFile,
-                isRemote: labelItem.useRclone || false,
-                remote: labelItem.remote || ''
-            })
-        });
+        const response = await fetch('/api/restore', getFetchOptions('POST', {
+            label: labelItem.label,
+            backupFile: backupFile,
+            isRemote: labelItem.useRclone || false,
+            remote: labelItem.remote || ''
+        }));
 
         if (!response.ok) {
             const error = await response.json();
