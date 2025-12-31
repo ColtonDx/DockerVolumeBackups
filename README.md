@@ -11,6 +11,8 @@ Docker Volume Backups provides an interface to:
 - **Sync backups to cloud storage** via rclone (AWS S3, Google Cloud Storage, Azure, Dropbox, etc.)
 - **Configure backup naming and filtering** to match your workflow
 
+[![Support](https://img.shields.io/badge/Support-Buy_Me_A_Coffee-yellow?style=for-the-badge&logo=buy%20me%20a%20coffee&color=FFDD00)](https://www.buymeacoffee.com/ColtonDx)
+
 ## How It Works
 
 ### Backup Flow
