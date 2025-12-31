@@ -1,6 +1,7 @@
 # Docker Volume Backup Manager
 
 A web-based application for scheduling and managing Docker volume backups with support for local storage and remote cloud backup via [rclone](https://rclone.org/).
+
 [![Support](https://img.shields.io/badge/Support-Buy_Me_A_Coffee-yellow?style=for-the-badge&logo=buy%20me%20a%20coffee&color=FFDD00)](https://www.buymeacoffee.com/ColtonDx)
 ## Overview
 
